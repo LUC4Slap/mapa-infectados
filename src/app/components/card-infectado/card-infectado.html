@@ -1,0 +1,17 @@
+<div class="infectado-card" (click)="focalizarInfectadoNoMapa()">
+<div class="card-header">
+  <span class="sexo-badge" [class.masculino]="infectado.sexo === 'Masculino'">
+    {{ infectado.sexo === 'Masculino' ? '♂' : '♀' }}
+  </span>
+  <span class="infectado-id">{{ infectado.id.substring(0, 8) }}...</span>
+</div>
+<div class="card-body">
+  <p><strong>Data Nasc.:</strong> {{ infectado.dataNascimento | date:'dd/MM/yyyy' }}</p>
+  <p><strong>Coordenadas:</strong></p>
+  <p class="coords">{{ infectado.latitude.toFixed(4) }}, {{ infectado.longitude.toFixed(4) }}</p>
+</div>
+<div class="card-actions">
+  <button class="locate-btn">📍 Ver no mapa</button>
+  <button class="nearby-btn" (click)="buscarInfectadosProximos($event)">🔍 Próximos</button>
+</div>
+</div>

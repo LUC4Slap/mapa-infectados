@@ -1,0 +1,478 @@
+// Layout fullscreen
+.map-fullscreen {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+
+  google-map {
+    display: block;
+    width: 100%;
+    height: 100%;
+  }
+}
+
+// Estilos do Google Maps
+:host ::ng-deep {
+  .gm-style {
+    font-family: 'Helvetica Neue', Arial, Helvetica, sans-serif;
+  }
+
+  .gm-style-iw {
+    padding: 0 !important;
+    border-radius: 8px;
+    overflow: hidden;
+  }
+
+  .gm-style-iw-c {
+    padding: 0 !important;
+    border-radius: 8px !important;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3) !important;
+  }
+
+  .gm-style-iw-d {
+    overflow: auto !important;
+    max-height: none !important;
+  }
+
+  .gm-ui-hover-effect {
+    top: 2px !important;
+    right: 2px !important;
+  }
+
+  // Remover watermark "For development purposes only" (temporário)
+  // NOTA: Configure corretamente a API key com billing para remover permanentemente
+  .gm-style-cc {
+    display: none !important;
+  }
+  
+  a[href^="https://maps.google.com/maps"] {
+    display: none !important;
+  }
+  
+  div[style*="background-color: rgb(245, 245, 245)"] {
+    background: transparent !important;
+  }
+}
+
+// Botão toggle sidebar
+.toggle-sidebar-btn {
+  position: fixed;
+  top: 20px;
+  left: 20px;
+  z-index: 1001;
+  background: #fff;
+  border: 2px solid #333;
+  border-radius: 8px;
+  width: 50px;
+  height: 50px;
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+  transition: all 0.3s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  .icon {
+    font-size: 24px;
+    color: #333;
+    font-weight: bold;
+  }
+
+  &:hover {
+    background: #d32f2f;
+    border-color: #d32f2f;
+    transform: scale(1.05);
+    
+    .icon {
+      color: #fff;
+    }
+  }
+
+  &.sidebar-open {
+    left: 420px;
+    background: #d32f2f;
+    border-color: #d32f2f;
+    
+    .icon {
+      color: #fff;
+    }
+  }
+}
+
+// Sidebar
+.sidebar {
+  position: fixed;
+  top: 0;
+  left: -400px;
+  width: 400px;
+  height: 100vh;
+  background: #fff;
+  box-shadow: 2px 0 10px rgba(0, 0, 0, 0.3);
+  z-index: 1000;
+  transition: left 0.3s ease;
+  display: flex;
+  flex-direction: column;
+
+  &.open {
+    left: 0;
+  }
+}
+
+.sidebar-header {
+  background: linear-gradient(135deg, #d32f2f 0%, #b71c1c 100%);
+  color: white;
+  padding: 25px 20px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  h1 {
+    margin: 0;
+    font-size: 1.8rem;
+    font-weight: 600;
+  }
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 20px;
+}
+
+// Cards de estatísticas
+.stats-card {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+
+  .stat-item {
+    background: linear-gradient(135deg, #f5f5f5 0%, #e0e0e0 100%);
+    padding: 15px;
+    border-radius: 8px;
+    text-align: center;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+    .stat-number {
+      display: block;
+      font-size: 2rem;
+      font-weight: bold;
+      color: #d32f2f;
+      margin-bottom: 5px;
+    }
+
+    .stat-label {
+      display: block;
+      font-size: 0.75rem;
+      color: #666;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+  }
+}
+
+// Lista de infectados
+.infectados-list {
+  h2 {
+    font-size: 1.2rem;
+    // color: #333;
+    // margin-bottom: 15px;
+    // padding-bottom: 10px;
+    // border-bottom: 2px solid #e0e0e0;
+  }
+}
+
+// Slider de distância
+.distance-slider-container {
+  background: linear-gradient(135deg, #f0f8ff 0%, #e6f2ff 100%);
+  
+  .form-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    color: #333;
+    font-size: 0.95rem;
+  }
+
+  .distance-value {
+    background: #4a90e2;
+    color: white;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-weight: bold;
+    font-size: 0.9rem;
+    min-width: 70px;
+    text-align: center;
+  }
+
+  .form-range {
+    height: 8px;
+    background: linear-gradient(to right, #4a90e2 0%, #2563eb 100%);
+    border-radius: 10px;
+    outline: none;
+    cursor: pointer;
+
+    &::-webkit-slider-thumb {
+      appearance: none;
+      width: 20px;
+      height: 20px;
+      background: #4a90e2;
+      border: 3px solid white;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s;
+
+      &:hover {
+        transform: scale(1.2);
+        background: #357abd;
+      }
+    }
+
+    &::-moz-range-thumb {
+      width: 20px;
+      height: 20px;
+      background: #4a90e2;
+      border: 3px solid white;
+      border-radius: 50%;
+      cursor: pointer;
+      box-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s;
+
+      &:hover {
+        transform: scale(1.2);
+        background: #357abd;
+      }
+    }
+  }
+
+  .text-muted {
+    font-size: 0.75rem;
+    margin-top: 5px;
+  }
+}
+
+.infectado-card {
+  background: white;
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  padding: 15px;
+  margin-bottom: 12px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+
+  &:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    border-color: #d32f2f;
+  }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 10px;
+
+    .sexo-badge {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      background: #ff6b9d;
+      color: white;
+
+      &.masculino {
+        background: #4a90e2;
+      }
+    }
+
+    .infectado-id {
+      font-family: monospace;
+      font-size: 0.85rem;
+      color: #666;
+      font-weight: 600;
+    }
+  }
+
+  .card-body {
+    margin: 10px 0;
+
+    p {
+      margin: 5px 0;
+      font-size: 0.85rem;
+      color: #555;
+
+      strong {
+        color: #333;
+      }
+    }
+
+    .coords {
+      font-family: monospace;
+      font-size: 0.8rem;
+      color: #4a90e2;
+      background: #f0f8ff;
+      padding: 4px 8px;
+      border-radius: 4px;
+      display: inline-block;
+      margin-top: 2px;
+    }
+  }
+
+  .locate-btn {
+    width: 100%;
+    padding: 8px;
+    background: #d32f2f;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+    transition: background 0.2s;
+
+    &:hover {
+      background: #b71c1c;
+    }
+  }
+}
+
+.empty-state {
+  text-align: center;
+  padding: 40px 20px;
+  color: #999;
+  font-style: italic;
+}
+
+// InfoWindow customizado do Google Maps
+.info-window-content {
+  position: relative;
+  padding: 20px;
+  min-width: 250px;
+  background: white;
+
+  .close-info {
+    position: absolute;
+    top: 8px;
+    right: 8px;
+    background: transparent;
+    border: none;
+    color: #666;
+    font-size: 20px;
+    cursor: pointer;
+    width: 24px;
+    height: 24px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+
+    &:hover {
+      background: #f0f0f0;
+      color: #333;
+    }
+  }
+
+  h3 {
+    margin: 0 0 15px 0;
+    color: #d32f2f;
+    font-size: 1.2rem;
+    font-weight: 600;
+    border-bottom: 2px solid #d32f2f;
+    padding-bottom: 10px;
+  }
+
+  .info-details {
+    p {
+      margin: 10px 0;
+      font-size: 0.9rem;
+      color: #333;
+      line-height: 1.5;
+
+      strong {
+        color: #666;
+        font-weight: 600;
+      }
+    }
+  }
+}
+
+// Responsividade
+@media (max-width: 768px) {
+  .sidebar {
+    width: 100vw;
+    left: -100vw;
+  }
+
+  .toggle-sidebar-btn {
+    &.sidebar-open {
+      left: calc(100vw - 70px);
+    }
+  }
+
+  .stats-card {
+    grid-template-columns: 1fr;
+  }
+
+  .info-window-content {
+    min-width: 200px;
+    padding: 15px;
+  }
+}
+
+// Overlay de carregamento
+.loading-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 2000;
+
+  .loading-spinner {
+    text-align: center;
+    color: white;
+
+    .spinner {
+      width: 60px;
+      height: 60px;
+      margin: 0 auto 20px;
+      border: 4px solid rgba(255, 255, 255, 0.3);
+      border-top: 4px solid white;
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+
+    p {
+      font-size: 1.1rem;
+      font-weight: 500;
+    }
+  }
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+// Garantir que o modal do Bootstrap apareça corretamente
+:host ::ng-deep {
+  .modal-backdrop {
+    z-index: 1050 !important;
+  }
+  
+  .modal {
+    z-index: 1055 !important;
+  }
+}

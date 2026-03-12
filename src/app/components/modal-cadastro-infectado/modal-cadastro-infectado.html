@@ -1,0 +1,178 @@
+<!-- Modal de Cadastro de Infectado -->
+<div class="modal fade" id="modalCadastroInfectado" tabindex="-1" aria-labelledby="modalCadastroLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content">
+      
+      <!-- Header -->
+      <div class="modal-header bg-danger text-white">
+        <h5 class="modal-title" id="modalCadastroLabel">
+          <i class="bi bi-plus-circle me-2"></i>
+          🦠 Cadastrar Novo Infectado
+        </h5>
+        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Fechar"></button>
+      </div>
+
+      <!-- Body com Formulário -->
+      <div class="modal-body">
+        <form #formCadastro="ngForm" (ngSubmit)="cadastrarInfectado()">
+          
+          <!-- Data de Nascimento -->
+          <div class="mb-3">
+            <label for="dataNascimento" class="form-label fw-bold">
+              <i class="bi bi-calendar-event text-primary"></i> Data de Nascimento *
+            </label>
+            <input 
+              type="date" 
+              class="form-control form-control-lg"
+              id="dataNascimento"
+              [(ngModel)]="dataNascimento"
+              name="dataNascimento"
+              required
+              [max]="dataMaxima">
+            <div class="form-text">Selecione a data de nascimento do infectado</div>
+          </div>
+
+          <!-- Sexo -->
+          <div class="mb-3">
+            <label class="form-label fw-bold">
+              <i class="bi bi-gender-ambiguous text-info"></i> Sexo *
+            </label>
+            <div class="d-flex gap-3">
+              <div class="form-check form-check-inline flex-fill">
+                <input 
+                  class="form-check-input" 
+                  type="radio" 
+                  name="sexo" 
+                  id="masculino"
+                  value="Masculino"
+                  [(ngModel)]="sexo"
+                  required>
+                <label class="form-check-label w-100 p-3 border rounded cursor-pointer" [class.bg-primary]="sexo() === 'Masculino'" [class.text-white]="sexo() === 'Masculino'" for="masculino">
+                  <i class="bi bi-gender-male fs-4"></i>
+                  <div class="fw-bold">Masculino</div>
+                </label>
+              </div>
+              <div class="form-check form-check-inline flex-fill">
+                <input 
+                  class="form-check-input" 
+                  type="radio" 
+                  name="sexo" 
+                  id="feminino"
+                  value="Feminino"
+                  [(ngModel)]="sexo"
+                  required>
+                <label class="form-check-label w-100 p-3 border rounded cursor-pointer" [class.bg-danger]="sexo() === 'Feminino'" [class.text-white]="sexo() === 'Feminino'" for="feminino">
+                  <i class="bi bi-gender-female fs-4"></i>
+                  <div class="fw-bold">Feminino</div>
+                </label>
+              </div>
+            </div>
+          </div>
+
+          <!-- Localização -->
+          <div class="card mb-3 border-warning">
+            <div class="card-header bg-warning bg-opacity-10">
+              <h6 class="mb-0">
+                <i class="bi bi-geo-alt-fill text-warning"></i> Localização GPS
+              </h6>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <!-- Latitude -->
+                <div class="col-md-6 mb-3 mb-md-0">
+                  <label for="latitude" class="form-label fw-bold">Latitude *</label>
+                  <input 
+                    type="number" 
+                    class="form-control"
+                    id="latitude"
+                    [(ngModel)]="latitude"
+                    name="latitude"
+                    step="0.000001"
+                    min="-90"
+                    max="90"
+                    placeholder="-23.550520"
+                    required>
+                  <div class="form-text small">-90 a 90</div>
+                </div>
+
+                <!-- Longitude -->
+                <div class="col-md-6">
+                  <label for="longitude" class="form-label fw-bold">Longitude *</label>
+                  <input 
+                    type="number" 
+                    class="form-control"
+                    id="longitude"
+                    [(ngModel)]="longitude"
+                    name="longitude"
+                    step="0.000001"
+                    min="-180"
+                    max="180"
+                    placeholder="-46.633308"
+                    required>
+                  <div class="form-text small">-180 a 180</div>
+                </div>
+              </div>
+
+              <!-- Botão de Localização Atual -->
+              <button 
+                type="button" 
+                class="btn btn-outline-warning btn-sm mt-3 w-100"
+                (click)="obterLocalizacaoAtual()"
+                [disabled]="obtendoLocalizacao()">
+                <span *ngIf="!obtendoLocalizacao()">
+                  <i class="bi bi-crosshair"></i> Usar Minha Localização Atual
+                </span>
+                <span *ngIf="obtendoLocalizacao()">
+                  <span class="spinner-border spinner-border-sm me-2"></span>
+                  Obtendo localização...
+                </span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Alerta de erro -->
+          @if (mensagemErro()) {
+            <div class="alert alert-danger d-flex align-items-center" role="alert">
+              <i class="bi bi-exclamation-triangle-fill me-2"></i>
+              <div>{{ mensagemErro() }}</div>
+            </div>
+          }
+
+          <!-- Alerta de sucesso -->
+          @if (mensagemSucesso()) {
+            <div class="alert alert-success d-flex align-items-center" role="alert">
+              <i class="bi bi-check-circle-fill me-2"></i>
+              <div>{{ mensagemSucesso() }}</div>
+            </div>
+          }
+
+        </form>
+      </div>
+
+      <!-- Footer com botões -->
+      <div class="modal-footer">
+        <button 
+          type="button" 
+          class="btn btn-secondary" 
+          data-bs-dismiss="modal"
+          [disabled]="salvando()">
+          <i class="bi bi-x-circle"></i> Cancelar
+        </button>
+        <button 
+          type="button" 
+          class="btn btn-danger"
+          (click)="cadastrarInfectado()"
+          [disabled]="salvando() || !formularioValido()">
+          <span *ngIf="!salvando()">
+            <i class="bi bi-save"></i> Cadastrar Infectado
+          </span>
+          <span *ngIf="salvando()">
+            <span class="spinner-border spinner-border-sm me-2"></span>
+            Cadastrando...
+          </span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+</div>

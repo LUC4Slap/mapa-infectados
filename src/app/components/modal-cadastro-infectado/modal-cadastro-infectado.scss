@@ -1,0 +1,225 @@
+// Estilos do Modal de Cadastro de Infectado
+
+.modal-content {
+  border: none;
+  box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
+  border-radius: 12px;
+  overflow: hidden;
+}
+
+.modal-header {
+  border-bottom: 3px solid rgba(255, 255, 255, 0.3);
+  padding: 1.25rem 1.5rem;
+
+  .modal-title {
+    font-size: 1.25rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+  }
+}
+
+.modal-body {
+  padding: 1.5rem;
+  max-height: 70vh;
+  overflow-y: auto;
+
+  // Scrollbar personalizado
+  &::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  &::-webkit-scrollbar-track {
+    background: #f1f1f1;
+    border-radius: 10px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: #888;
+    border-radius: 10px;
+
+    &:hover {
+      background: #555;
+    }
+  }
+}
+
+.modal-footer {
+  border-top: 1px solid #dee2e6;
+  padding: 1rem 1.5rem;
+  background-color: #f8f9fa;
+}
+
+// Estilos do formulário
+.form-label {
+  font-size: 0.95rem;
+  margin-bottom: 0.5rem;
+  color: #495057;
+
+  i {
+    font-size: 1.1rem;
+  }
+}
+
+.form-control,
+.form-select {
+  border-radius: 8px;
+  border: 2px solid #e0e0e0;
+  padding: 0.65rem 0.75rem;
+  transition: all 0.3s ease;
+
+  &:focus {
+    border-color: #dc3545;
+    box-shadow: 0 0 0 0.2rem rgba(220, 53, 69, 0.15);
+  }
+
+  &.form-control-lg {
+    padding: 0.75rem 1rem;
+    font-size: 1.05rem;
+  }
+}
+
+// Radio buttons customizados
+.form-check-label {
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-align: center;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &.bg-primary,
+  &.bg-danger {
+    border-color: transparent !important;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+}
+
+.form-check-input {
+  display: none;
+}
+
+// Card de localização
+.card {
+  border-radius: 10px;
+  
+  .card-header {
+    border-top-left-radius: 10px;
+    border-top-right-radius: 10px;
+    padding: 0.75rem 1rem;
+    
+    h6 {
+      font-weight: 600;
+      color: #495057;
+    }
+  }
+
+  .card-body {
+    padding: 1.25rem;
+  }
+}
+
+// Botões
+.btn {
+  border-radius: 8px;
+  padding: 0.65rem 1.5rem;
+  font-weight: 500;
+  transition: all 0.3s ease;
+  border: none;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  }
+
+  &:disabled {
+    cursor: not-allowed;
+    opacity: 0.6;
+  }
+
+  i {
+    font-size: 1rem;
+  }
+}
+
+.btn-danger {
+  background: linear-gradient(135deg, #dc3545 0%, #c82333 100%);
+  
+  &:hover:not(:disabled) {
+    background: linear-gradient(135deg, #c82333 0%, #bd2130 100%);
+  }
+}
+
+.btn-outline-warning {
+  border: 2px solid #ffc107;
+  color: #856404;
+
+  &:hover:not(:disabled) {
+    background-color: #ffc107;
+    color: #212529;
+  }
+}
+
+// Alertas
+.alert {
+  border-radius: 8px;
+  border: none;
+  animation: slideDown 0.3s ease;
+
+  i {
+    font-size: 1.2rem;
+  }
+}
+
+@keyframes slideDown {
+  from {
+    opacity: 0;
+    transform: translateY(-10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+// Spinner
+.spinner-border-sm {
+  width: 1rem;
+  height: 1rem;
+  border-width: 0.15rem;
+}
+
+// Form text
+.form-text {
+  font-size: 0.85rem;
+  color: #6c757d;
+  margin-top: 0.25rem;
+}
+
+// Cursor pointer utility
+.cursor-pointer {
+  cursor: pointer;
+}
+
+// Responsividade
+@media (max-width: 576px) {
+  .modal-dialog {
+    margin: 0.5rem;
+  }
+
+  .modal-body {
+    padding: 1rem;
+  }
+
+  .btn {
+    padding: 0.5rem 1rem;
+    font-size: 0.9rem;
+  }
+
+  .form-check-label {
+    padding: 1rem !important;
+    font-size: 0.9rem;
+  }
+}

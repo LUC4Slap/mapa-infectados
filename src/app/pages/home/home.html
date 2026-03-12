@@ -1,0 +1,141 @@
+<div class="map-fullscreen">
+  <!-- Google Maps ocupando tela inteira -->
+  @if (mapaCarregado()) {
+    <google-map
+      [center]="center"
+      [zoom]="zoom"
+      [options]="mapOptions"
+      width="100%"
+      height="100%"
+      (mapInitialized)="onMapReady($event)">
+      
+      <!-- Marcadores -->
+      @for (marker of markers; track marker.infectado.id) {
+        <map-marker
+          [position]="marker.position"
+          [options]="marker.options"
+          (mapClick)="onMarkerClick(marker)">
+        </map-marker>
+      }
+
+      <!-- InfoWindow -->
+      @if (selectedInfectado) {
+        <map-info-window [position]="{ lat: selectedInfectado.latitude, lng: selectedInfectado.longitude }">
+          <div class="info-window-content">
+            <button class="close-info" (click)="closeInfoWindow()">✕</button>
+            <h3>🦠 Infectado</h3>
+            <div class="info-details">
+              <p><strong>ID:</strong> {{ selectedInfectado.id }}</p>
+              <p><strong>Sexo:</strong> {{ selectedInfectado.sexo === 'Masculino' ? '♂ Masculino' : '♀ Feminino' }}</p>
+              <p><strong>Data Nasc.:</strong> {{ formatarData(selectedInfectado.dataNascimento) }}</p>
+              <p><strong>Coordenadas:</strong><br>
+                {{ selectedInfectado.latitude.toFixed(4) }}, {{ selectedInfectado.longitude.toFixed(4) }}
+              </p>
+            </div>
+          </div>
+        </map-info-window>
+      }
+    </google-map>
+  } @else {
+    <div class="loading-overlay">
+      <div class="loading-spinner">
+        <div class="spinner"></div>
+        <p>Carregando Google Maps...</p>
+      </div>
+    </div>
+  }
+
+  <!-- Botão para abrir/fechar menu -->
+  <button class="toggle-sidebar-btn" (click)="toggleSidebar()" [class.sidebar-open]="sidebarAberta()">
+    <span class="icon">{{ sidebarAberta() ? '✕' : '☰' }}</span>
+  </button>
+
+  <!-- Menu lateral -->
+  <div class="sidebar" [class.open]="sidebarAberta()">
+    <div class="sidebar-header">
+      <h1>🦠 Infectados</h1>
+    </div>
+
+    <div class="sidebar-content">
+      <div class="stats-card">
+        <div class="stat-item">
+          <span class="stat-number">{{ infectados().length }}</span>
+          <span class="stat-label">Total de Infectados</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ contarPorSexo('Masculino') }}</span>
+          <span class="stat-label">Masculino</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-number">{{ contarPorSexo('Feminino') }}</span>
+          <span class="stat-label">Feminino</span>
+        </div>
+      </div>
+
+      <div class="infectados-list">
+        <div class="row d-flex align-items-center justify-content-center mb-3">
+          <div class="col">
+            <h2>Lista de Infectados</h2>
+          </div>
+          <div class="col">
+            <button 
+              class="btn btn-primary" 
+              (click)="abrirModalCadastro()">
+              <i class="bi bi-plus-circle"></i> Cadastrar Novo
+            </button>
+          </div>
+        </div>
+        <div class="mt-3 mb-3 border p-2 rounded-3">
+          <span>Filtrar por sexo:</span>
+          <div class="row d-flex align-items-center justify-content-center">
+            <div class="col">
+              <button class="btn btn-primary" (click)="filtarPorSexo('Feminino')">Feminino</button>
+            </div>
+            <div class="col">
+              <button class="btn btn-primary" (click)="filtarPorSexo('Masculino')">Masculino</button>
+            </div>
+            <div class="col">
+              <button class="btn btn-primary" (click)="resetarFiltro()">Todos</button>
+            </div>
+          </div>
+        </div>
+
+        <div class="mt-3 mb-3 border p-3 rounded-3 distance-slider-container">
+          <label for="distanceSlider" class="form-label">
+            <strong>🔍 Distância para buscar próximos:</strong>
+            <span class="distance-value">{{ distanciaMaxima() }} km</span>
+          </label>
+          <input 
+            type="range" 
+            class="form-range" 
+            id="distanceSlider"
+            min="1" 
+            max="1000" 
+            step="1"
+            [value]="distanciaMaxima()"
+            (input)="atualizarDistancia($event)">
+          <div class="d-flex justify-content-between text-muted small">
+            <span>1 km</span>
+            <span>1000 km</span>
+          </div>
+        </div>
+        
+        @for (infectado of infectados(); track infectado.id) {
+          <app-card-infectado 
+          [infectado]="infectado" 
+          (focalizarInfectado)="focalizarInfectado($event)"
+          (buscarProximos)="buscarInfectadosProximos($event)"></app-card-infectado>
+        } @empty {
+          <div class="empty-state">
+            <p>Nenhum infectado encontrado</p>
+          </div>
+        }
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal de Cadastro de Infectado (fora do contexto do mapa) -->
+@if (isBrowser()) {
+  <app-modal-cadastro-infectado (infectadoCadastrado)="buscarInfectados()" />
+}

@@ -1,1 +1,38 @@
 /* You can add global styles to this file, and also import other style files */
+
+// Bootstrap 5 já está importado via angular.json
+// Você pode customizar variáveis do Bootstrap aqui antes da importação
+
+// Reset de estilos globais
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+// Customizações globais opcionais
+:root {
+  --primary-color: #d32f2f;
+  --secondary-color: #b71c1c;
+  --text-color: #333;
+  --border-radius: 8px;
+}
+
+// Utilitários personalizados
+.cursor-pointer {
+  cursor: pointer;
+}
+
+.text-truncate-2 {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
