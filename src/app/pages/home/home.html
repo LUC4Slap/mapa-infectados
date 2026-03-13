@@ -18,6 +18,21 @@
         </map-marker>
       }
 
+      <!-- Círculo de raio de busca -->
+      @if (circuloRaio()) {
+        <map-circle
+          [center]="circuloRaio()!.center"
+          [radius]="circuloRaio()!.radius"
+          [options]="{
+            strokeColor: '#4a90e2',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#4a90e2',
+            fillOpacity: 0.15
+          }">
+        </map-circle>
+      }
+
       <!-- InfoWindow -->
       @if (selectedInfectado) {
         <map-info-window [position]="{ lat: selectedInfectado.latitude, lng: selectedInfectado.longitude }">
@@ -119,17 +134,69 @@
             <span>1000 km</span>
           </div>
         </div>
-        
-        @for (infectado of infectados(); track infectado.id) {
-          <app-card-infectado 
-          [infectado]="infectado" 
-          (focalizarInfectado)="focalizarInfectado($event)"
-          (buscarProximos)="buscarInfectadosProximos($event)"></app-card-infectado>
-        } @empty {
-          <div class="empty-state">
-            <p>Nenhum infectado encontrado</p>
+
+        <!-- Controles do Mapa de Calor -->
+        <div class="mt-3 mb-3 border p-3 rounded-3 heatmap-controls">
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <strong>🔥 Mapa de Calor</strong>
+            <button 
+              class="btn heatmap-toggle-btn"
+              [class.active]="modoHeatmap()"
+              (click)="toggleHeatmap()">
+              {{ modoHeatmap() ? '✓ Ativo' : 'Ativar' }}
+            </button>
           </div>
-        }
+
+          @if (modoHeatmap()) {
+            <div class="mb-3">
+              <label for="estadoSelect" class="form-label">
+                <strong>🗺️ Selecionar Estado:</strong>
+              </label>
+              <select 
+                class="form-select" 
+                id="estadoSelect"
+                [value]="estadoSelecionado()"
+                (change)="selecionarEstado($event)">
+                @for (estado of estados; track estado.sigla) {
+                  <option [value]="estado.sigla">{{ estado.nome }}</option>
+                }
+              </select>
+            </div>
+
+            <div>
+              <label for="intensitySlider" class="form-label">
+                <strong>🌡️ Intensidade:</strong>
+                <span class="intensity-value">{{ intensidadeHeatmap().toFixed(1) }}</span>
+              </label>
+              <input 
+                type="range" 
+                class="form-range" 
+                id="intensitySlider"
+                min="0.5" 
+                max="5" 
+                step="0.5"
+                [value]="intensidadeHeatmap()"
+                (input)="atualizarIntensidade($event)">
+              <div class="d-flex justify-content-between text-muted small">
+                <span>Baixa</span>
+                <span>Alta</span>
+              </div>
+            </div>
+          }
+        </div>
+        
+        <div class="box-cards">
+          @for (infectado of infectados(); track infectado.id) {
+            <app-card-infectado 
+            [infectado]="infectado" 
+            (focalizarInfectado)="focalizarInfectado($event)"
+            (buscarProximos)="buscarInfectadosProximos($event)"></app-card-infectado>
+          } @empty {
+            <div class="empty-state">
+              <p>Nenhum infectado encontrado</p>
+            </div>
+          }
+        </div>
       </div>
     </div>
   </div>

@@ -22,6 +22,50 @@ export class Home implements OnInit, AfterViewInit {
   isBrowser = signal<boolean>(false);
   distanciaMaxima = signal<number>(5); // Distância em km
   
+  // Círculo de raio de busca
+  circuloRaio = signal<{
+    center: { lat: number; lng: number };
+    radius: number;
+  } | null>(null);
+  
+  // Mapa de calor
+  modoHeatmap = signal<boolean>(false);
+  estadoSelecionado = signal<string>('Todos');
+  intensidadeHeatmap = signal<number>(2); // Valor padrão mais adequado
+  private heatmapLayer: any = null;
+  
+  // Estados brasileiros com coordenadas aproximadas do centro e bounds
+  estados = [
+    { sigla: 'Todos', nome: 'Todos os Estados', center: { lat: -15.7939, lng: -47.8828 }, zoom: 5 },
+    { sigla: 'AC', nome: 'Acre', center: { lat: -9.0238, lng: -70.812 }, zoom: 7 },
+    { sigla: 'AL', nome: 'Alagoas', center: { lat: -9.5713, lng: -36.782 }, zoom: 8 },
+    { sigla: 'AP', nome: 'Amapá', center: { lat: 0.9019, lng: -52.003 }, zoom: 7 },
+    { sigla: 'AM', nome: 'Amazonas', center: { lat: -3.4168, lng: -65.8561 }, zoom: 6 },
+    { sigla: 'BA', nome: 'Bahia', center: { lat: -12.5797, lng: -41.7007 }, zoom: 7 },
+    { sigla: 'CE', nome: 'Ceará', center: { lat: -5.4984, lng: -39.3206 }, zoom: 7 },
+    { sigla: 'DF', nome: 'Distrito Federal', center: { lat: -15.7939, lng: -47.8828 }, zoom: 11 },
+    { sigla: 'ES', nome: 'Espírito Santo', center: { lat: -19.1834, lng: -40.3089 }, zoom: 8 },
+    { sigla: 'GO', nome: 'Goiás', center: { lat: -15.827, lng: -49.8362 }, zoom: 7 },
+    { sigla: 'MA', nome: 'Maranhão', center: { lat: -4.9609, lng: -45.2744 }, zoom: 7 },
+    { sigla: 'MT', nome: 'Mato Grosso', center: { lat: -12.6819, lng: -56.9211 }, zoom: 6 },
+    { sigla: 'MS', nome: 'Mato Grosso do Sul', center: { lat: -20.7722, lng: -54.7852 }, zoom: 7 },
+    { sigla: 'MG', nome: 'Minas Gerais', center: { lat: -18.5122, lng: -44.555 }, zoom: 7 },
+    { sigla: 'PA', nome: 'Pará', center: { lat: -1.9981, lng: -54.9306 }, zoom: 6 },
+    { sigla: 'PB', nome: 'Paraíba', center: { lat: -7.24, lng: -36.782 }, zoom: 8 },
+    { sigla: 'PR', nome: 'Paraná', center: { lat: -25.2521, lng: -52.0215 }, zoom: 7 },
+    { sigla: 'PE', nome: 'Pernambuco', center: { lat: -8.8137, lng: -36.9541 }, zoom: 8 },
+    { sigla: 'PI', nome: 'Piauí', center: { lat: -7.7183, lng: -42.7289 }, zoom: 7 },
+    { sigla: 'RJ', nome: 'Rio de Janeiro', center: { lat: -22.2124, lng: -42.5663 }, zoom: 8 },
+    { sigla: 'RN', nome: 'Rio Grande do Norte', center: { lat: -5.4026, lng: -36.9541 }, zoom: 8 },
+    { sigla: 'RS', nome: 'Rio Grande do Sul', center: { lat: -30.0346, lng: -51.2177 }, zoom: 7 },
+    { sigla: 'RO', nome: 'Rondônia', center: { lat: -11.5057, lng: -63.5806 }, zoom: 7 },
+    { sigla: 'RR', nome: 'Roraima', center: { lat: 2.7376, lng: -62.0751 }, zoom: 7 },
+    { sigla: 'SC', nome: 'Santa Catarina', center: { lat: -27.2423, lng: -50.2189 }, zoom: 7 },
+    { sigla: 'SP', nome: 'São Paulo', center: { lat: -23.5505, lng: -46.6333 }, zoom: 7 },
+    { sigla: 'SE', nome: 'Sergipe', center: { lat: -10.5741, lng: -37.3857 }, zoom: 8 },
+    { sigla: 'TO', nome: 'Tocantins', center: { lat: -10.1753, lng: -48.2982 }, zoom: 7 }
+  ];
+  
   // Google Maps configurações - inicializadas sem referências ao google
   center: any = { lat: -15.7939, lng: -47.8828 };
   zoom = 5; // Zoom inicial mais próximo
@@ -84,7 +128,7 @@ export class Home implements OnInit, AfterViewInit {
     if (typeof document === 'undefined') return; // Proteção SSR
 
     const script = document.createElement('script');
-    script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}`;
+    script.src = `https://maps.googleapis.com/maps/api/js?key=${environment.googleMapsApiKey}&libraries=visualization`;
     script.async = true;
     script.defer = true;
     script.onload = () => {
@@ -455,10 +499,10 @@ export class Home implements OnInit, AfterViewInit {
   }
 
   filtarPorSexo(sexo: string): void {
+    this.circuloRaio.set(null); // Remover círculo ao filtrar
     this.infectadoService.buscarInfectadoPorSexo(sexo).subscribe((data: Infctado[]) => {
       this.infectados.set(data);
-      this.shouldFitBounds = true; // Permitir fitBounds após filtrar
-      // Atualizar marcadores no mapa
+      this.shouldFitBounds = true;
       if (this.map) {
         this.adicionarMarcadores();
       }
@@ -466,11 +510,19 @@ export class Home implements OnInit, AfterViewInit {
   }
 
   resetarFiltro(): void {
+    this.circuloRaio.set(null); // Remover círculo ao resetar
     this.buscarInfectados();
   }
 
   buscarInfectadosProximos(infectado: Infctado): void {
     const distanciaEmMetros = this.distanciaMaxima() * 1000; // Converter km para metros
+    
+    // Desenhar círculo no mapa
+    this.circuloRaio.set({
+      center: { lat: infectado.latitude, lng: infectado.longitude },
+      radius: distanciaEmMetros
+    });
+    
     this.infectadoService.buscarProximos(infectado.latitude, infectado.longitude, distanciaEmMetros).subscribe(
       (data: Infctado[]) => {
         this.infectados.set(data);
@@ -512,6 +564,92 @@ export class Home implements OnInit, AfterViewInit {
   atualizarDistancia(event: Event): void {
     const input = event.target as HTMLInputElement;
     this.distanciaMaxima.set(Number(input.value));
+  }
+  
+  // Funções do mapa de calor
+  toggleHeatmap(): void {
+    this.modoHeatmap.update(modo => !modo);
+    this.adicionarMarcadores();
+  }
+  
+  selecionarEstado(event: Event): void {
+    const select = event.target as HTMLSelectElement;
+    const sigla = select.value;
+    this.estadoSelecionado.set(sigla);
+    
+    const estado = this.estados.find(e => e.sigla === sigla);
+    if (estado && this.map) {
+      this.center = estado.center;
+      this.zoom = estado.zoom;
+      this.currentZoom = estado.zoom;
+      this.map.setCenter(estado.center);
+      this.map.setZoom(estado.zoom);
+    }
+    
+    // Atualizar visualização
+    this.adicionarMarcadores();
+  }
+  
+  atualizarIntensidade(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    this.intensidadeHeatmap.set(Number(input.value));
+    
+    // Atualizar heatmap se estiver ativo
+    if (this.modoHeatmap() && this.heatmapLayer) {
+      const maxIntensity = this.intensidadeHeatmap() * 3;
+      this.heatmapLayer.set('maxIntensity', maxIntensity);
+      console.log(`🌡️ Intensidade ajustada para: ${this.intensidadeHeatmap()} (maxIntensity: ${maxIntensity})`);
+    }
+  }
+  
+  private criarHeatmap(infectados: Infctado[]): void {
+    if (!this.map || typeof google === 'undefined') return;
+    
+    // Remover marcadores
+    this.markers = [];
+    
+    // Remover heatmap anterior se existir
+    if (this.heatmapLayer) {
+      this.heatmapLayer.setMap(null);
+    }
+    
+    // Criar pontos de calor (apenas LatLng para melhor visualização)
+    const heatmapData = infectados.map(infectado => {
+      return new google.maps.LatLng(infectado.latitude, infectado.longitude);
+    });
+    
+    // Criar camada de heatmap com configurações otimizadas
+    this.heatmapLayer = new google.maps.visualization.HeatmapLayer({
+      data: heatmapData,
+      map: this.map
+    });
+    
+    // Aplicar configurações
+    this.heatmapLayer.setOptions({
+      radius: 50, // Raio maior para melhor visualização
+      opacity: 1.0, // Opacidade máxima
+      maxIntensity: this.intensidadeHeatmap() * 3, // Intensidade ajustável
+      dissipating: true,
+      // Gradiente do Google Maps padrão otimizado
+      gradient: [
+        'rgba(0, 255, 255, 0)',
+        'rgba(0, 255, 255, 1)',
+        'rgba(0, 191, 255, 1)',
+        'rgba(0, 127, 255, 1)',
+        'rgba(0, 63, 255, 1)',
+        'rgba(0, 0, 255, 1)',
+        'rgba(0, 0, 223, 1)',
+        'rgba(0, 0, 191, 1)',
+        'rgba(0, 0, 159, 1)',
+        'rgba(0, 0, 127, 1)',
+        'rgba(63, 0, 91, 1)',
+        'rgba(127, 0, 63, 1)',
+        'rgba(191, 0, 31, 1)',
+        'rgba(255, 0, 0, 1)'
+      ]
+    });
+    
+    console.log(`🔥 Heatmap criado com ${infectados.length} pontos | Intensidade: ${this.intensidadeHeatmap()} | Estado: ${this.estadoSelecionado()}`);
   }
 
 }
